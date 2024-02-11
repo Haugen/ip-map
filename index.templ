@@ -1,0 +1,16 @@
+package main
+
+import (
+	"github.com/Haugen/ip-map/components"
+)
+
+templ Homepage(name string) {
+	<div>
+		@components.Header()
+		<h2>Form</h2>
+		<form>
+			<input type="text" name="url" />
+			<button>Submit</button>
+		</form>
+	</div>
+}

@@ -1,0 +1,17 @@
+package components
+
+import (
+  "math/rand"
+	"strconv"
+)
+
+// Ordinary Go code that we can use in our Component.
+var randomNum = strconv.Itoa(rand.Int())
+
+// templ Component
+templ Header() {
+  <header>
+    <h1>Welcome good sir!</h1>
+    <p>Some random number here: { randomNum }</p>
+  </header>
+}
