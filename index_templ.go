@@ -29,7 +29,7 @@ func Homepage(name string) templ.Component {
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h2>Form</h2><form hx-post=\"/handle-form\" hx-target=\"#form-result\"><label for=\"url\">URL</label> <input type=\"text\" name=\"url\"> <button>Submit me!</button></form><div id=\"form-result\"></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h2>Form</h2><form hx-post=\"/handle-form\" hx-target=\"#form-result\"><label for=\"url\">URL</label> <input type=\"text\" name=\"url\"> <button>Submit</button></form><div id=\"form-result\"></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

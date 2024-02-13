@@ -21,16 +21,10 @@ func main() {
 		fmt.Fprint(w, "API response")
 	})
 
-	http.HandleFunc("/handle-form", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			return
-		}
-
+	http.HandleFunc("POST /handle-form", func(w http.ResponseWriter, r *http.Request) {
 		details := FormData{
 			URL: r.FormValue("url"),
 		}
-
-		fmt.Println(details.URL)
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(details)
