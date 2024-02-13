@@ -1,16 +1,14 @@
 package main
 
-import (
-	"github.com/Haugen/ip-map/components"
-)
-
 templ Homepage(name string) {
-	<div>
-		@components.Header()
+	@Layout(name) {
 		<h2>Form</h2>
-		<form>
+		<form hx-post="/handle-form" hx-target="#form-result">
+			<label for="url">URL</label>
 			<input type="text" name="url" />
 			<button>Submit</button>
 		</form>
-	</div>
+
+		<div id="form-result" />
+	}
 }
