@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os/exec"
 
 	"github.com/a-h/templ"
 )
@@ -25,6 +26,15 @@ func main() {
 		details := FormData{
 			URL: r.FormValue("url"),
 		}
+
+		// Not working properly, but keeping it as an example of how to
+		// run a command on the host in Go.
+		cmd := exec.Command("traceroute https://www.twitch.tv")
+		err := cmd.Run()
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(cmd)
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(details)
