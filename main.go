@@ -1,12 +1,16 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
-	"os/exec"
+	"time"
 
 	"github.com/a-h/templ"
+	"github.com/chromedp/cdproto/network"
+	"github.com/chromedp/chromedp"
 )
 
 type FormData struct {
@@ -23,18 +27,29 @@ func main() {
 	})
 
 	http.HandleFunc("POST /handle-form", func(w http.ResponseWriter, r *http.Request) {
+		ctx, cancel := chromedp.NewContext(context.Background())
+		defer cancel()
+
 		details := FormData{
 			URL: r.FormValue("url"),
 		}
 
-		// Not working properly, but keeping it as an example of how to
-		// run a command on the host in Go.
-		cmd := exec.Command("traceroute https://www.twitch.tv")
-		err := cmd.Run()
-		if err != nil {
-			fmt.Println(err)
+		now := time.Now()
+		chromedp.ListenTarget(ctx, func(ev interface{}) {
+			if ev, ok := ev.(*network.EventResponseReceived); ok {
+				if ev.Response.RemoteIPAddress != "" {
+					fmt.Println(ev.Response.RemoteIPAddress, ev.Response.ResponseTime.Time().Sub(now).Milliseconds())
+				}
+			}
+		})
+
+		if err := chromedp.Run(ctx, chromedp.Navigate(details.URL)); err != nil {
+			log.Fatal(err)
 		}
-		fmt.Println(cmd)
+
+		fmt.Println("")
+		fmt.Println("#########")
+		fmt.Println("")
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(details)
