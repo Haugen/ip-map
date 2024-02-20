@@ -19,7 +19,7 @@ var baseIpApiUrl = "http://ip-api.com/json/"
 var myClient = &http.Client{Timeout: 10 * time.Second}
 
 type FormData struct {
-	URL string
+	Url string
 }
 
 type Location struct {
@@ -27,9 +27,9 @@ type Location struct {
 }
 
 type ResponseData struct {
-	ip           string
-	responseTime int64
-	location     Location
+	Ip           string
+	ResponseTime int64
+	Location     Location
 }
 
 type IpApiResponse struct {
@@ -53,13 +53,14 @@ func main() {
 	app := Homepage("Ip Map")
 
 	http.Handle("/", templ.Handler(app))
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
 	http.HandleFunc("POST /handle-form", func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := chromedp.NewContext(context.Background())
 		defer cancel()
 
 		details := FormData{
-			URL: r.FormValue("url"),
+			Url: r.FormValue("url"),
 		}
 
 		now := time.Now()
@@ -77,25 +78,25 @@ func main() {
 			}
 		})
 
-		if err := chromedp.Run(ctx, chromedp.Navigate(details.URL)); err != nil {
+		if err := chromedp.Run(ctx, chromedp.Navigate(details.Url)); err != nil {
 			log.Fatal(err)
 		}
 
 		type CheckedAddresses struct {
 			ip       string
-			Location Location
+			location Location
 		}
 
 		checkedAddresses := make([]CheckedAddresses, 0)
 		for i, data := range networkData {
-			idx := slices.IndexFunc(checkedAddresses, func(c CheckedAddresses) bool { return c.ip == data.ip })
+			idx := slices.IndexFunc(checkedAddresses, func(c CheckedAddresses) bool { return c.ip == data.Ip })
 
 			if idx != -1 {
-				networkData[i].location = checkedAddresses[idx].Location
+				networkData[i].Location = checkedAddresses[idx].location
 				continue
 			}
 
-			resp, err := myClient.Get(baseIpApiUrl + data.ip)
+			resp, err := myClient.Get(baseIpApiUrl + data.Ip)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -112,22 +113,29 @@ func main() {
 			}
 
 			address := CheckedAddresses{
-				ip: data.ip,
-				Location: Location{
+				ip: data.Ip,
+				location: Location{
 					ipApiResponse.Lat,
 					ipApiResponse.Lon,
 				},
 			}
 			checkedAddresses = append(checkedAddresses, address)
 
-			networkData[i].location = Location{
+			networkData[i].Location = Location{
 				ipApiResponse.Lat,
 				ipApiResponse.Lon,
 			}
 		}
 
+		fmt.Println(networkData)
+
+		js, err := json.Marshal(networkData)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(networkData)
+		w.Write(js)
 	})
 
 	fmt.Println("Listening on :3000")

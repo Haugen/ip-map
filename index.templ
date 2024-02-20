@@ -6,9 +6,10 @@ templ Homepage(name string) {
 		<form hx-post="/handle-form" hx-target="#form-result">
 			<label for="url">URL</label>
 			<input type="text" name="url" />
-			<button>Submit</button>
+			<button id="submit-button">Submit</button>
 		</form>
 
-		<div id="form-result" />
+		<div class="hidden" id="form-result" />
+		<div id="output" />
 	}
 }
